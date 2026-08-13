@@ -19,33 +19,178 @@
             box-shadow: 0 1px 5px rgba(0,0,0,.3); font-size: 13px; line-height: 1.7; }
   .legend .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%;
                  margin-right: 6px; vertical-align: -1px; border: 2px solid transparent; }
+  .legend .sq { border-radius: 3px; opacity: .45; }
   .legend .hollow { background: transparent !important; }
   .legend a { color: #2b6cb0; }
   .legend label { display: block; cursor: pointer; }
+  .legend hr { border: none; border-top: 1px solid #ddd; margin: 5px 0; }
+  .legend .muted { color: #666; }
+  .legend .scalebar { height: 10px; border-radius: 5px; margin: 4px 0 1px; }
+  .legend .scalelabels { display: flex; justify-content: space-between;
+                         font-size: 11px; color: #666; margin-bottom: 2px;
+                         font-variant-numeric: tabular-nums; }
+  .noisescale { display: flex; gap: 1px; font-size: 10px; color: #555;
+                margin: 1px 0 3px 17px; line-height: 1.2; }
+  .noisescale span { display: flex; flex-direction: column; align-items: center; }
+  .noisescale i { display: block; width: 20px; height: 8px; opacity: .7;
+                  margin-bottom: 1px; }
+  .noisescale .muted { justify-content: flex-end; color: #999; }
+  .zonelabel { background: none; border: none; box-shadow: none;
+               font-size: 12px; font-weight: 700; letter-spacing: .08em;
+               text-transform: uppercase;
+               text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 4px #fff; }
+  .zonelabel::before { display: none; }
 </style>
 </head>
 <body>
 <div id="map"></div>
 <script>
-const markers = [{"lat": 42.3661941, "lon": -71.099438, "approx": false, "status": "Viewing scheduled", "color": "#6b46c1", "name": "2 Bedroom 1.5 Bathroom 2 Blocks From Central Square - Aug/Sept", "link": "https://boston.craigslist.org/gbs/apa/d/cambridge-bedroom-15-bathroom-blocks/7953089546.html", "price": "2,900", "beds": "2", "baths": "1.5", "sqft": "", "station": "Central (Red)", "walk": "3", "rank": "okay", "addr": "Suffolk, cambridge, MA 02139", "avail": "2026-08-15", "laundry": "In building"}, {"lat": 42.3169458, "lon": -71.1142905, "approx": false, "status": "Contacted", "color": "#dd6b20", "name": "2 Bdr- One-month FREE Rent\ud83d\udcb0No Last Month \ud83d\udcb5No Security Deposit", "link": "https://boston.craigslist.org/gbs/apa/d/jamaica-plain-bdr-one-month-free-rentno/7953084415.html", "price": "2,900", "beds": "2", "baths": "1", "sqft": "936", "station": "Heath St (Green E)", "walk": "11", "rank": "great", "addr": "545 Centre St, Jamaica Plain, MA 02130", "avail": "?", "laundry": "In building"}, {"lat": 42.372991, "lon": -71.1121723, "approx": false, "status": "Viewing scheduled", "color": "#6b46c1", "name": "Heat & Hot Water Included ** Big Rooms! ** Laundry ** Convenient to T", "link": "https://boston.craigslist.org/gbs/apa/d/cambridge-heat-hot-water-included-big/7952957744.html", "price": "2,700", "beds": "2", "baths": "1", "sqft": "", "station": "Harvard (Red)", "walk": "7", "rank": "okay", "addr": "16 Ware St, Cambridge, MA 02138", "avail": "2026-09-01", "laundry": "Available"}, {"lat": 42.4017973, "lon": -71.1151086, "approx": false, "status": "Viewing scheduled", "color": "#6b46c1", "name": "9/1!Great Location 2BD!2 Parking extra $!10 to Davis T! 6 to Ball Sq", "link": "https://boston.craigslist.org/gbs/apa/d/somerville-1great-location-2bd2-parking/7952944480.html", "price": "3,000", "beds": "2", "baths": "1", "sqft": "1272", "station": "Davis (Red)", "walk": "9", "rank": "okay", "addr": "27 Warner Street, Somerville, MA 02144", "avail": "2026-09-01", "laundry": ""}, {"lat": 42.4080954, "lon": -71.1241002, "approx": false, "status": "New", "color": "#2b6cb0", "name": "** NO FEE Brand New 2 Bed!", "link": "https://boston.craigslist.org/gbs/apa/d/medford-no-fee-brand-new-bed/7952842147.html", "price": "3,000", "beds": "2", "baths": "1", "sqft": "800", "station": "Davis (Red)", "walk": "14", "rank": "okay", "addr": "Curtis St, Somerville, MA 02144", "avail": "2026-09-01", "laundry": "In unit"}, {"lat": 42.364149999999995, "lon": -71.08628235294118, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath House", "link": "https://www.facebook.com/marketplace/item/1492300485996821/", "price": "2,800", "beds": "2", "baths": "1", "sqft": "", "station": "Kendall/MIT (Red)", "walk": "14", "rank": "no", "addr": "", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.36522058823529, "lon": -71.10466470588236, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1711303856659557/", "price": "3,000", "beds": "2", "baths": "1", "sqft": "", "station": "Central (Red)", "walk": "25", "rank": "good", "addr": "", "avail": "2026-07-01", "laundry": "In building"}, {"lat": 42.367373529411765, "lon": -71.10605294117647, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath House", "link": "https://www.facebook.com/marketplace/item/1342715821265889/", "price": "2,500", "beds": "2", "baths": "1", "sqft": "950", "station": "Central (Red)", "walk": "12", "rank": "good", "addr": "", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.39621470588236, "lon": -71.1202, "approx": true, "status": "New", "color": "#2b6cb0", "name": "3 Beds 2 Baths - Apartment", "link": "https://www.facebook.com/marketplace/item/2102062707047264/", "price": "3,000", "beds": "3", "baths": "2", "sqft": "", "station": "Davis (Red)", "walk": "16", "rank": "no", "addr": "", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.3955118, "lon": -71.1249144, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1562871125380092/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "600", "station": "Davis (Red)", "walk": "2", "rank": "good", "addr": "62 Dover St, Somerville MA", "avail": "?", "laundry": "In building"}, {"lat": 42.390229, "lon": -71.1076544, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1376271944707822/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "908", "station": "Porter (Red)", "walk": "12", "rank": "good", "addr": "217 Highland Ave, somerville", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.3868145, "lon": -71.0994111, "approx": false, "status": "Contacted", "color": "#dd6b20", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1694922581764183/", "price": "2,650", "beds": "2", "baths": "1", "sqft": "1347", "station": "Porter (Red)", "walk": "20", "rank": "great", "addr": "102 Highland Ave, somerville", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.36210294117647, "lon": -71.08722352941177, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/1000720452768510/", "price": "2,400", "beds": "2", "baths": "1", "sqft": "", "station": "Kendall/MIT (Red)", "walk": "10", "rank": "okay", "addr": "", "avail": "2026-08-31", "laundry": "In unit"}, {"lat": 42.3898544, "lon": -71.0994619, "approx": false, "status": "New", "color": "#2b6cb0", "name": "3 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/2132185831035743/", "price": "3,000", "beds": "3", "baths": "1", "sqft": "", "station": "Porter (Red)", "walk": "22", "rank": "good", "addr": "1 Lee St., Somerville MA", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.365026470588234, "lon": -71.10207647058823, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/1469824360984175/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "700", "station": "Central (Red)", "walk": "13", "rank": "good", "addr": "", "avail": "now", "laundry": "In unit"}, {"lat": 42.39748529411765, "lon": -71.1210705882353, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1023242613848324/", "price": "2,895", "beds": "2", "baths": "1", "sqft": "", "station": "Davis (Red)", "walk": "", "rank": "expired", "addr": "", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.36626176470588, "lon": -71.10391176470588, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1569902017827340/", "price": "2,800", "beds": "2", "baths": "1", "sqft": "", "station": "Central (Red)", "walk": "13", "rank": "good-okay", "addr": "", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.3215046, "lon": -71.1045461, "approx": false, "status": "New", "color": "#2b6cb0", "name": "3 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1506663141211934/", "price": "2,895", "beds": "3", "baths": "1", "sqft": "", "station": "Heath St (Green E)", "walk": "8", "rank": "good", "addr": "36 Mozart St., jamaica plain", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.32654411764706, "lon": -71.10889999999999, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/998342976350803/", "price": "2,875", "beds": "2", "baths": "1", "sqft": "1490", "station": "Heath St (Green E)", "walk": "19", "rank": "okay", "addr": "36 Park St, Brookline, MA", "avail": "now", "laundry": "Available"}, {"lat": 42.3117929, "lon": -71.1011059, "approx": false, "status": "Contacted", "color": "#dd6b20", "name": "3 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1036591075618303/", "price": "2,895", "beds": "3", "baths": "1", "sqft": "925", "station": "Heath St (Green E)", "walk": "21", "rank": "great", "addr": "8 Olmstead St., jamaica plain", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.40497352941176, "lon": -71.14378823529411, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/1641082724302029/", "price": "2,500", "beds": "2", "baths": "1", "sqft": "", "station": "Minuteman \u2192 Alewife (Red)", "walk": "47", "rank": "no", "addr": "", "avail": "?", "laundry": "In building"}, {"lat": 42.4228737, "lon": -71.1941157, "approx": false, "status": "New", "color": "#2b6cb0", "name": "3 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/2080310922831116/", "price": "2,900", "beds": "3", "baths": "1", "sqft": "1100", "station": "Minuteman \u2192 Alewife (Red)", "walk": "11", "rank": "okay", "addr": "92 Sylvia Street, arlington", "avail": "now", "laundry": "Hookups"}, {"lat": 42.4152021, "lon": -71.138617, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 2 Baths - Apartment", "link": "https://www.facebook.com/marketplace/item/2096922121249362/", "price": "3,000", "beds": "2", "baths": "2", "sqft": "", "station": "Minuteman \u2192 Alewife (Red)", "walk": "24", "rank": "okay", "addr": "29 Harvard Ave", "avail": "?", "laundry": "In building"}, {"lat": 42.415832, "lon": -71.1292904, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1412571477446534/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "1593", "station": "Minuteman \u2192 Alewife (Red)", "walk": "22", "rank": "good", "addr": "14 Irvington Rd, somerville", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.39752647058824, "lon": -71.14208823529411, "approx": true, "status": "New", "color": "#2b6cb0", "name": "3 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1751079289263436/", "price": "2,750", "beds": "3", "baths": "1", "sqft": "", "station": "Alewife (Red)", "walk": "47", "rank": "good-great", "addr": "93 Bartlett Ave, cambridge", "avail": "now", "laundry": "In building"}, {"lat": 42.4165886, "lon": -71.1650948, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/1797047635083767/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "950", "station": "Minuteman \u2192 Alewife (Red)", "walk": "9", "rank": "good-great", "addr": "100 Wildwood Ave, Arlington", "avail": "now", "laundry": "In building"}, {"lat": 42.4035794117647, "lon": -71.14675294117647, "approx": true, "status": "New", "color": "#2b6cb0", "name": "3 Beds 1 Bath - House", "link": "https://www.facebook.com/marketplace/item/2388921998294513/", "price": "2,700", "beds": "3", "baths": "1", "sqft": "", "station": "Minuteman \u2192 Alewife (Red)", "walk": "0", "rank": "okay", "addr": "", "avail": "now", "laundry": ""}, {"lat": 42.403349999999996, "lon": -71.14214117647059, "approx": true, "status": "New", "color": "#2b6cb0", "name": "3 Beds 2 Baths Apartment", "link": "https://www.facebook.com/marketplace/item/1020460530528359/", "price": "2,775", "beds": "3", "baths": "2", "sqft": "1200", "station": "Minuteman \u2192 Alewife (Red)", "walk": "12", "rank": "okay", "addr": "", "avail": "now", "laundry": "In building"}, {"lat": 42.39574411764706, "lon": -71.14159411764706, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/3510706615752293/", "price": "2,700", "beds": "2", "baths": "1", "sqft": "1010", "station": "Alewife (Red)", "walk": "50", "rank": "good", "addr": "", "avail": "2026-08-14", "laundry": "In unit"}, {"lat": 42.3796967, "lon": -71.1064233, "approx": false, "status": "New", "color": "#2b6cb0", "name": "HARVARD/INMAN LOCATION STUDY PLUS GUEST ROOM YARD NOW", "link": "https://boston.craigslist.org/gbs/apa/d/somerville-harvard-inman-location-study/7953192798.html", "price": "2,850", "beds": "2", "baths": "1", "sqft": "", "station": "Harvard (Red)", "walk": "17", "rank": "good", "addr": "Skehan St, Somerville, MA 02143", "avail": "now", "laundry": ""}, {"lat": 42.363791176470585, "lon": -71.10532352941176, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1054529387233755/", "price": "2,700", "beds": "2", "baths": "1", "sqft": "", "station": "Central (Red)", "walk": "10", "rank": "okay", "addr": "Cambridge, MA", "avail": "now", "laundry": "In unit"}];
-const anchors = [{"name": "Alewife", "lat": 42.3954, "lon": -71.1425, "miles": 0.9}, {"name": "Davis Sq", "lat": 42.3967, "lon": -71.1224, "miles": 0.9}, {"name": "Porter Sq", "lat": 42.3884, "lon": -71.1191, "miles": 0.9}, {"name": "Harvard Sq", "lat": 42.3736, "lon": -71.119, "miles": 0.9}, {"name": "Central Sq", "lat": 42.3653, "lon": -71.1031, "miles": 0.9}, {"name": "Kendall Sq", "lat": 42.3625, "lon": -71.0862, "miles": 0.9}, {"name": "Heath St / S Huntington", "lat": 42.3286, "lon": -71.1111, "miles": 0.8}, {"name": "Hyde Sq", "lat": 42.3249, "lon": -71.1113, "miles": 0.8}, {"name": "East Arlington (Lake St)", "lat": 42.4047, "lon": -71.145, "miles": 0.7}, {"name": "Arlington Center", "lat": 42.4154, "lon": -71.1565, "miles": 0.7}, {"name": "Arlington Heights", "lat": 42.4204, "lon": -71.1838, "miles": 0.7}, {"name": "East Lexington (Bow St)", "lat": 42.4339, "lon": -71.2043, "miles": 0.7}, {"name": "Lexington Center", "lat": 42.4482, "lon": -71.2308, "miles": 0.7}];
+const markers = [{"lat": 42.3661941, "lon": -71.099438, "approx": false, "status": "Viewing scheduled", "color": "#6b46c1", "name": "2 Bedroom 1.5 Bathroom 2 Blocks From Central Square - Aug/Sept", "link": "https://boston.craigslist.org/gbs/apa/d/cambridge-bedroom-15-bathroom-blocks/7953089546.html", "price": "2,900", "beds": "2", "baths": "1.5", "sqft": "", "ppsf": null, "station": "Central (Red)", "walk": "3", "rank": "okay", "addr": "Suffolk, Cambridge, MA 02139", "avail": "2026-08-15", "laundry": "In building"}, {"lat": 42.3169458, "lon": -71.1142905, "approx": false, "status": "Contacted", "color": "#dd6b20", "name": "2 Bdr- One-month FREE Rent\ud83d\udcb0No Last Month \ud83d\udcb5No Security Deposit", "link": "https://boston.craigslist.org/gbs/apa/d/jamaica-plain-bdr-one-month-free-rentno/7953084415.html", "price": "2,900", "beds": "2", "baths": "1", "sqft": "936", "ppsf": 3.1, "station": "Heath St (Green E)", "walk": "11", "rank": "great", "addr": "545 Centre St, Jamaica Plain, MA 02130", "avail": "?", "laundry": "In building"}, {"lat": 42.372991, "lon": -71.1121723, "approx": false, "status": "Viewing scheduled", "color": "#6b46c1", "name": "Heat & Hot Water Included ** Big Rooms! ** Laundry ** Convenient to T", "link": "https://boston.craigslist.org/gbs/apa/d/cambridge-heat-hot-water-included-big/7952957744.html", "price": "2,700", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Harvard (Red)", "walk": "7", "rank": "okay", "addr": "16 Ware St, Cambridge, MA 02138", "avail": "2026-09-01", "laundry": "Available"}, {"lat": 42.4017973, "lon": -71.1151086, "approx": false, "status": "Viewing scheduled", "color": "#6b46c1", "name": "9/1!Great Location 2BD!2 Parking extra $!10 to Davis T! 6 to Ball Sq", "link": "https://boston.craigslist.org/gbs/apa/d/somerville-1great-location-2bd2-parking/7952944480.html", "price": "3,000", "beds": "2", "baths": "1", "sqft": "1272", "ppsf": 2.36, "station": "Ball Sq (Green)", "walk": "5", "rank": "okay", "addr": "27 Warner St, Somerville, MA 02144", "avail": "2026-09-01", "laundry": ""}, {"lat": 42.4080954, "lon": -71.1241002, "approx": false, "status": "New", "color": "#2b6cb0", "name": "** NO FEE Brand New 2 Bed!", "link": "https://boston.craigslist.org/gbs/apa/d/medford-no-fee-brand-new-bed/7952842147.html", "price": "3,000", "beds": "2", "baths": "1", "sqft": "800", "ppsf": 3.75, "station": "Medford/Tufts (Green)", "walk": "8", "rank": "okay", "addr": "Curtis St, Somerville, MA 02144", "avail": "2026-09-01", "laundry": "In unit"}, {"lat": 42.364149999999995, "lon": -71.08628235294118, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath House", "link": "https://www.facebook.com/marketplace/item/1492300485996821/", "price": "2,800", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Kendall/MIT (Red)", "walk": "14", "rank": "no", "addr": "", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.39352058823529, "lon": -71.10786470588236, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1711303856659557/", "price": "3,000", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Magoun Sq (Green)", "walk": "24", "rank": "good", "addr": "", "avail": "2026-07-01", "laundry": "In building"}, {"lat": 42.367373529411765, "lon": -71.10605294117647, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath House", "link": "https://www.facebook.com/marketplace/item/1342715821265889/", "price": "2,500", "beds": "2", "baths": "1", "sqft": "950", "ppsf": 2.63, "station": "Central (Red)", "walk": "12", "rank": "good", "addr": "", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.39941470588236, "lon": -71.1091, "approx": true, "status": "New", "color": "#2b6cb0", "name": "3 Beds 2 Baths - Apartment", "link": "https://www.facebook.com/marketplace/item/2102062707047264/", "price": "3,000", "beds": "3", "baths": "2", "sqft": "", "ppsf": null, "station": "Ball Sq (Green)", "walk": "5", "rank": "no", "addr": "", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.3955118, "lon": -71.1249144, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1562871125380092/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "600", "ppsf": 4.83, "station": "Davis (Red)", "walk": "2", "rank": "good", "addr": "62 Dover St, Somerville, MA", "avail": "?", "laundry": "In building"}, {"lat": 42.3902422, "lon": -71.1077676, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1376271944707822/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "908", "ppsf": 3.19, "station": "Magoun Sq (Green)", "walk": "5", "rank": "good", "addr": "217 Highland Ave, Somerville, MA", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.3868145, "lon": -71.0994111, "approx": false, "status": "Contacted", "color": "#dd6b20", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1694922581764183/", "price": "2,650", "beds": "2", "baths": "1", "sqft": "1347", "ppsf": 1.97, "station": "Magoun Sq (Green)", "walk": "12", "rank": "great", "addr": "102 Highland Ave, Somerville, MA", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.36210294117647, "lon": -71.08722352941177, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/1000720452768510/", "price": "2,400", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Kendall/MIT (Red)", "walk": "10", "rank": "okay", "addr": "", "avail": "2026-08-31", "laundry": "In unit"}, {"lat": 42.3898544, "lon": -71.0994619, "approx": false, "status": "New", "color": "#2b6cb0", "name": "3 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/2132185831035743/", "price": "3,000", "beds": "3", "baths": "1", "sqft": "1027", "ppsf": 2.92, "station": "Magoun Sq (Green)", "walk": "11", "rank": "good", "addr": "1 Lee St, Somerville, MA", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.365026470588234, "lon": -71.10207647058823, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/1469824360984175/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "700", "ppsf": 4.14, "station": "Central (Red)", "walk": "13", "rank": "good", "addr": "", "avail": "now", "laundry": "In unit"}, {"lat": 42.39748529411765, "lon": -71.1210705882353, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1023242613848324/", "price": "2,895", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Davis (Red)", "walk": "", "rank": "expired", "addr": "", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.36626176470588, "lon": -71.10391176470588, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1569902017827340/", "price": "2,800", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Central (Red)", "walk": "13", "rank": "good-okay", "addr": "", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.3215046, "lon": -71.1045461, "approx": false, "status": "New", "color": "#2b6cb0", "name": "3 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1506663141211934/", "price": "2,895", "beds": "3", "baths": "1", "sqft": "1013", "ppsf": 2.86, "station": "Heath St (Green E)", "walk": "8", "rank": "good", "addr": "36 Mozart St, Jamaica Plain, MA", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.32654411764706, "lon": -71.10889999999999, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/998342976350803/", "price": "2,875", "beds": "2", "baths": "1", "sqft": "1490", "ppsf": 1.93, "station": "Heath St (Green E)", "walk": "19", "rank": "okay", "addr": "36 Park St, Brookline, MA", "avail": "now", "laundry": "Available"}, {"lat": 42.3117929, "lon": -71.1011059, "approx": false, "status": "Contacted", "color": "#dd6b20", "name": "3 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1036591075618303/", "price": "2,895", "beds": "3", "baths": "1", "sqft": "925", "ppsf": 3.13, "station": "Heath St (Green E)", "walk": "21", "rank": "great", "addr": "8 Olmstead St, Jamaica Plain, MA", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.40497352941176, "lon": -71.14378823529411, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/1641082724302029/", "price": "2,500", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Minuteman \u2192 Alewife (Red)", "walk": "47", "rank": "no", "addr": "", "avail": "?", "laundry": "In building"}, {"lat": 42.4228737, "lon": -71.1941157, "approx": false, "status": "New", "color": "#2b6cb0", "name": "3 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/2080310922831116/", "price": "2,900", "beds": "3", "baths": "1", "sqft": "1100", "ppsf": 2.64, "station": "Minuteman \u2192 Alewife (Red)", "walk": "11", "rank": "okay", "addr": "92 Sylvia St, Arlington, MA", "avail": "now", "laundry": "Hookups"}, {"lat": 42.4152021, "lon": -71.138617, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 2 Baths - Apartment", "link": "https://www.facebook.com/marketplace/item/2096922121249362/", "price": "3,000", "beds": "2", "baths": "2", "sqft": "", "ppsf": null, "station": "Minuteman \u2192 Alewife (Red)", "walk": "24", "rank": "okay", "addr": "29 Harvard Ave", "avail": "?", "laundry": "In building"}, {"lat": 42.415832, "lon": -71.1292904, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1412571477446534/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "1593", "ppsf": 1.82, "station": "Medford/Tufts (Green)", "walk": "16", "rank": "good", "addr": "14 Irvington Rd, Somerville, MA", "avail": "2026-08-31", "laundry": "In building"}, {"lat": 42.39752647058824, "lon": -71.14208823529411, "approx": true, "status": "Contacted", "color": "#dd6b20", "name": "3 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1751079289263436/", "price": "2,750", "beds": "3", "baths": "1", "sqft": "", "ppsf": null, "station": "Alewife (Red)", "walk": "47", "rank": "good-great", "addr": "93 Bartlett Ave, Belmont, MA", "avail": "now", "laundry": "In building"}, {"lat": 42.4165886, "lon": -71.1650948, "approx": false, "status": "Contacted", "color": "#dd6b20", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/1797047635083767/", "price": "2,900", "beds": "2", "baths": "1", "sqft": "950", "ppsf": 3.05, "station": "Minuteman \u2192 Alewife (Red)", "walk": "9", "rank": "good-great", "addr": "100 Wildwood Ave, Arlington, MA", "avail": "now", "laundry": "In building"}, {"lat": 42.4035794117647, "lon": -71.14675294117647, "approx": true, "status": "New", "color": "#2b6cb0", "name": "3 Beds 1 Bath - House", "link": "https://www.facebook.com/marketplace/item/2388921998294513/", "price": "2,700", "beds": "3", "baths": "1", "sqft": "", "ppsf": null, "station": "Minuteman \u2192 Alewife (Red)", "walk": "0", "rank": "okay", "addr": "", "avail": "now", "laundry": ""}, {"lat": 42.403349999999996, "lon": -71.14214117647059, "approx": true, "status": "New", "color": "#2b6cb0", "name": "3 Beds 2 Baths Apartment", "link": "https://www.facebook.com/marketplace/item/1020460530528359/", "price": "2,775", "beds": "3", "baths": "2", "sqft": "1200", "ppsf": 2.31, "station": "Minuteman \u2192 Alewife (Red)", "walk": "12", "rank": "okay", "addr": "", "avail": "now", "laundry": "In building"}, {"lat": 42.39574411764706, "lon": -71.14159411764706, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/3510706615752293/", "price": "2,700", "beds": "2", "baths": "1", "sqft": "1010", "ppsf": 2.67, "station": "Alewife (Red)", "walk": "50", "rank": "good", "addr": "", "avail": "2026-08-14", "laundry": "In unit"}, {"lat": 42.3796967, "lon": -71.1064233, "approx": false, "status": "New", "color": "#2b6cb0", "name": "HARVARD/INMAN LOCATION STUDY PLUS GUEST ROOM YARD NOW", "link": "https://boston.craigslist.org/gbs/apa/d/somerville-harvard-inman-location-study/7953192798.html", "price": "2,850", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Harvard (Red)", "walk": "17", "rank": "good", "addr": "Skehan St, Somerville, MA 02143", "avail": "now", "laundry": ""}, {"lat": 42.363791176470585, "lon": -71.10532352941176, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/1054529387233755/", "price": "2,700", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Central (Red)", "walk": "10", "rank": "okay", "addr": "Cambridge, MA", "avail": "now", "laundry": "In unit"}, {"lat": 42.40866764705883, "lon": -71.1167705882353, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/2317259199076710/", "price": "2,850", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Medford/Tufts (Green)", "walk": "12", "rank": "", "addr": "Medford, MA", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.4114082, "lon": -71.1161748, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath Apartment", "link": "https://www.facebook.com/marketplace/item/4768134120080597/", "price": "3,000", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Medford/Tufts (Green)", "walk": "5", "rank": "", "addr": "30 Hume Ave, Medford, MA", "avail": "2026-08-31", "laundry": "In unit"}, {"lat": 42.4194957, "lon": -71.1158996, "approx": false, "status": "New", "color": "#2b6cb0", "name": "2 Beds 2 Baths Apartment", "link": "https://www.facebook.com/marketplace/item/1025981116714453/", "price": "3,000", "beds": "2", "baths": "2", "sqft": "1230", "ppsf": 2.44, "station": "Medford/Tufts (Green)", "walk": "17", "rank": "", "addr": "2500 Mystic Valley Pkwy, Medford, MA", "avail": "2026-08-14", "laundry": "In unit"}, {"lat": 42.4120549, "lon": -71.1159599, "approx": false, "status": "New", "color": "#2b6cb0", "name": "Laundry in Unit ** Modern Granite Kitchen ** Yard ** Green L", "link": "https://boston.craigslist.org/gbs/apa/d/medford-laundry-in-unit-modern-granite/7953139199.html", "price": "2,900", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Medford/Tufts (Green)", "walk": "6", "rank": "", "addr": "Hume Ave, Medford, MA 02155", "avail": "2026-09-01", "laundry": "In unit"}, {"lat": 42.39371470588235, "lon": -71.10765294117647, "approx": true, "status": "New", "color": "#2b6cb0", "name": "Apartment For Rent in Somerville", "link": "https://boston.craigslist.org/gbs/apa/d/somerville-apartment-for-rent-in/7953132281.html", "price": "2,200", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Magoun Sq (Green)", "walk": "14", "rank": "", "addr": "Somerville", "avail": "?", "laundry": ""}, {"lat": 42.395972, "lon": -71.1005295, "approx": false, "status": "New", "color": "#2b6cb0", "name": "*NO FEE* Nice deal for this basement level 2 bedroom *NOW*", "link": "https://boston.craigslist.org/gbs/apa/d/somerville-no-fee-nice-deal-for-this/7953115457.html", "price": "2,495", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Magoun Sq (Green)", "walk": "7", "rank": "", "addr": "433 Broadway, Somerville, MA 02145", "avail": "2026-08-12", "laundry": "In building"}, {"lat": 42.30900882352941, "lon": -71.1084, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 bed, No Fee, owner occupied building", "link": "https://boston.craigslist.org/gbs/apa/d/jamaica-plain-bed-no-fee-owner-occupied/7953106974.html", "price": "3,000", "beds": "2", "baths": "1", "sqft": "900", "ppsf": 3.33, "station": "Green St (Orange)", "walk": "5", "rank": "", "addr": "boston/cambridge/brookline", "avail": "2026-09-01", "laundry": "In building"}, {"lat": 42.3089047, "lon": -71.102557, "approx": false, "status": "New", "color": "#2b6cb0", "name": "Great Deal!  Over-Sized 1-2 BRJamaica Plain - Laundry - Heat", "link": "https://boston.craigslist.org/gbs/apa/d/jamaica-plain-great-deal-over-sized-2/7953084017.html", "price": "2,000", "beds": "2", "baths": "1", "sqft": "900", "ppsf": 2.22, "station": "Green St (Orange)", "walk": "3", "rank": "", "addr": "Glen Rd, Jamaica Plain, MA 02130", "avail": "?", "laundry": "In building"}, {"lat": 42.4142531, "lon": -71.105544, "approx": false, "status": "New", "color": "#2b6cb0", "name": "\u2728Modern 2bed 2 full bath * Pool * Parking * fitness ctr * AC", "link": "https://boston.craigslist.org/gbs/apa/d/medford-modern-2bed-full-bath-pool/7952994150.html", "price": "3,000", "beds": "2", "baths": "2", "sqft": "1230", "ppsf": 2.44, "station": "Medford/Tufts (Green)", "walk": "16", "rank": "", "addr": "Mystic Valley Parkway, Medford, MA 02155", "avail": "2026-08-15", "laundry": "In unit"}, {"lat": 42.3868145, "lon": -71.0994111, "approx": false, "status": "New", "color": "#2b6cb0", "name": "Spring Hill 2 Bedroom", "link": "https://boston.craigslist.org/gbs/apa/d/somerville-spring-hill-bedroom/7952937139.html", "price": "2,650", "beds": "2", "baths": "1", "sqft": "900", "ppsf": 2.94, "station": "Magoun Sq (Green)", "walk": "12", "rank": "", "addr": "102 Highland Ave, Somerville, MA 02143", "avail": "2026-09-01", "laundry": ""}, {"lat": 42.4210453, "lon": -71.0987576, "approx": false, "status": "New", "color": "#2b6cb0", "name": "286 Salem St. - Medford", "link": "https://boston.craigslist.org/gbs/apa/d/medford-286-salem-st-medford/7952935632.html", "price": "2,300", "beds": "2", "baths": "1", "sqft": "900", "ppsf": 2.56, "station": "Medford/Tufts (Green)", "walk": "16", "rank": "", "addr": "286 salem, Medford, MA 02155", "avail": "2026-09-01", "laundry": ""}, {"lat": 42.4114082, "lon": -71.1161748, "approx": false, "status": "New", "color": "#2b6cb0", "name": "Medford/Tufts 2 Bedroom Renovated - In Unit Laundry", "link": "https://boston.craigslist.org/gbs/apa/d/medford-medford-tufts-bedroom-renovated/7952931159.html", "price": "2,900", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Medford/Tufts (Green)", "walk": "5", "rank": "", "addr": "30 hume, Medford, MA 02155", "avail": "2026-09-01", "laundry": "In unit"}, {"lat": 42.30010294117647, "lon": -71.11653529411764, "approx": true, "status": "New", "color": "#2b6cb0", "name": "2 Beds 1 Bath - Apartment", "link": "https://www.facebook.com/marketplace/item/2047651699439988/", "price": "2,795", "beds": "2", "baths": "1", "sqft": "", "ppsf": null, "station": "Forest Hills (Orange)", "walk": "1", "rank": "", "addr": "Jamaica Plain, MA", "avail": "2026-09-01", "laundry": "In building"}];
+const anchors = [{"name": "Alewife", "lat": 42.3954, "lon": -71.1425, "miles": 0.9, "area": "Camberville"}, {"name": "Davis Sq", "lat": 42.3967, "lon": -71.1224, "miles": 0.9, "area": "Camberville"}, {"name": "Porter Sq", "lat": 42.3884, "lon": -71.1191, "miles": 0.9, "area": "Camberville"}, {"name": "Harvard Sq", "lat": 42.3736, "lon": -71.119, "miles": 0.9, "area": "Camberville"}, {"name": "Central Sq", "lat": 42.3653, "lon": -71.1031, "miles": 0.9, "area": "Camberville"}, {"name": "Kendall Sq", "lat": 42.3625, "lon": -71.0862, "miles": 0.9, "area": "Camberville"}, {"name": "Medford/Tufts", "lat": 42.4076, "lon": -71.1177, "miles": 0.9, "area": "Medford GLX"}, {"name": "Ball Sq", "lat": 42.3999, "lon": -71.1113, "miles": 0.9, "area": "Medford GLX"}, {"name": "Magoun Sq", "lat": 42.3936, "lon": -71.1063, "miles": 0.9, "area": "Medford GLX"}, {"name": "Heath St / S Huntington", "lat": 42.3286, "lon": -71.1111, "miles": 0.8, "area": "JP (Green E)"}, {"name": "Hyde Sq", "lat": 42.3249, "lon": -71.1113, "miles": 0.8, "area": "JP (Green E)"}, {"name": "Jackson Sq", "lat": 42.3232, "lon": -71.0996, "miles": 0.8, "area": "JP (SW Corridor)"}, {"name": "Stony Brook", "lat": 42.3172, "lon": -71.1043, "miles": 0.8, "area": "JP (SW Corridor)"}, {"name": "Green St", "lat": 42.3105, "lon": -71.1074, "miles": 0.8, "area": "JP (SW Corridor)"}, {"name": "Forest Hills", "lat": 42.3005, "lon": -71.1137, "miles": 0.8, "area": "JP (SW Corridor)"}, {"name": "East Arlington (Lake St)", "lat": 42.4047, "lon": -71.145, "miles": 0.7, "area": "Minuteman"}, {"name": "Arlington Center", "lat": 42.4154, "lon": -71.1565, "miles": 0.7, "area": "Minuteman"}, {"name": "Arlington Heights", "lat": 42.4204, "lon": -71.1838, "miles": 0.7, "area": "Minuteman"}, {"name": "East Lexington (Bow St)", "lat": 42.4339, "lon": -71.2043, "miles": 0.7, "area": "Minuteman"}, {"name": "Lexington Center", "lat": 42.4482, "lon": -71.2308, "miles": 0.7, "area": "Minuteman"}];
 const map = L.map("map");
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+// Base map, mostly desaturated so it doesn't compete with the colored
+// overlays (noise, zones, dots). Nature keeps its color: green hues
+// (parks/woods) and water blues pass through; everything else — road
+// oranges, reds, yellows — is flattened to its gray luminance.
+const NatureOnlyOSM = L.TileLayer.extend({
+  createTile: function (coords, done) {
+    const tile = document.createElement("canvas");
+    tile.width = tile.height = 256;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const ctx = tile.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      const d = ctx.getImageData(0, 0, 256, 256);
+      const p = d.data;
+      for (let i = 0; i < p.length; i += 4) {
+        const r = p[i], g = p[i + 1], b = p[i + 2];
+        const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+        const sat = mx ? (mx - mn) / mx : 0;
+        let hue = 0;
+        if (mx !== mn) {
+          if (mx === r) hue = 60 * (((g - b) / (mx - mn)) % 6);
+          else if (mx === g) hue = 60 * ((b - r) / (mx - mn) + 2);
+          else hue = 60 * ((r - g) / (mx - mn) + 4);
+          if (hue < 0) hue += 360;
+        }
+        const nature = sat > 0.06 &&
+          ((hue >= 80 && hue < 175) ||           // vegetation greens
+           (hue >= 175 && hue <= 235));          // water blues
+        if (!nature) {
+          const y = 0.299 * r + 0.587 * g + 0.114 * b;
+          p[i] = p[i + 1] = p[i + 2] = y;
+        }
+      }
+      ctx.putImageData(d, 0, 0);
+      done(null, tile);
+    };
+    img.onerror = e => done(e, tile);
+    img.src = this.getTileUrl(coords);
+    return tile;
+  },
+});
+new NatureOnlyOSM("https://tile.openstreetmap.org/{z}/{x}/{y}.png",
   { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
 
-// Target-zone context: a faint circle per anchor (radius = walk radius).
-for (const a of anchors)
-  L.circle([a.lat, a.lon], { radius: a.miles * 1609, color: "#2b6cb0",
-    weight: 1, opacity: .25, fillOpacity: .04, interactive: false }).addTo(map);
+// Noise overlay: US DOT/BTS National Transportation Noise Map (2022) —
+// modeled average-day road+aviation noise on a ~30 m grid, which is why it
+// looks blocky up close (maxNativeZoom 12 is the raster's real resolution).
+// Quiet streets are transparent; colors start at 45 dB.
+// Deliberately NOT the rail-inclusive service: the BTS rail model ignores
+// terrain shielding and prices electric commuter rail as diesel, so it
+// blankets the (trenched, mostly electric) JP Southwest Corridor in a
+// half-mile-wide 60-80 dB smear that no independent source corroborates.
+const noisePane = map.createPane("noise");
+noisePane.style.zIndex = 250;  // above base tiles (200), below zones (350)
+// multiply keeps street names readable under the wash (45 dB covers most of
+// the metro, so a plain alpha overlay yellows out the whole base map).
+noisePane.style.mixBlendMode = "multiply";
+const noiseLayer = L.tileLayer(
+  "https://tiles.arcgis.com/tiles/xOi1kZaI0eWDREZv/arcgis/rest/services/" +
+  "NTAD_Noise_2022_CONUS_aviation_road/MapServer/tile/{z}/{y}/{x}",
+  { pane: "noise", maxNativeZoom: 12, maxZoom: 19, opacity: 0.45,
+    attribution: "Noise: US DOT BTS 2022" }).addTo(map);
+// dB class -> swatch color, straight from the service's legend endpoint.
+const NOISE_SCALE = [["45", "#FFC107"], ["50", "#FF8000"], ["55", "#FF0000"],
+                     ["60", "#FF3399"], ["70", "#A300CC"], ["80", "#5200CC"],
+                     ["90+", "#0000FF"]];
+
+// Search zones: the union of each zone's walk-radius circles, drawn as one
+// flat shape. Trick: the circles are fully opaque inside a dedicated pane,
+// and the pane itself is faded with CSS — so overlaps don't double-darken.
+const ZONE_COLORS = { "Camberville": "#DA291C",   // Red Line red
+                      "JP (Green E)": "#00843D",  // Green Line green
+                      "JP (SW Corridor)": "#ED8B00",  // Orange Line orange
+                      "Minuteman": "#b45309" };   // bike-path amber
+const zonePane = map.createPane("zones");
+zonePane.style.opacity = .2; zonePane.style.pointerEvents = "none";
+zonePane.style.zIndex = 350;   // under the apartment markers (400)
+const zoneLabelPane = map.createPane("zonelabels");
+zoneLabelPane.style.pointerEvents = "none"; zoneLabelPane.style.zIndex = 360;
+
+const zones = {};  // area label -> {group, color, pts}
+for (const a of anchors) {
+  const z = (zones[a.area] ??= { group: L.layerGroup().addTo(map), pts: [],
+                                 color: ZONE_COLORS[a.area] || "#2b6cb0" });
+  z.group.addLayer(L.circle([a.lat, a.lon], { pane: "zones",
+    radius: a.miles * 1609, stroke: false, fillColor: z.color, fillOpacity: 1 }));
+  z.pts.push([a.lat, a.lon]);
+}
+for (const [area, z] of Object.entries(zones)) {
+  const lat = z.pts.reduce((s, p) => s + p[0], 0) / z.pts.length;
+  const lon = z.pts.reduce((s, p) => s + p[1], 0) / z.pts.length;
+  z.group.addLayer(L.tooltip({ pane: "zonelabels", permanent: true,
+      direction: "center", className: "zonelabel", opacity: 1 })
+    .setLatLng([lat, lon])
+    .setContent(`<span style="color:${z.color}">${area}</span>`));
+}
 
 const esc = s => String(s ?? "").replace(/[&<>"]/g,
   c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ---- dot color modes: status (sheet colors) / $ per sq ft / Carly rank ----
+// Sequential blue ramp; $/sq ft runs dark→light so the best deals pop.
+const RAMP = ["#86b6ef","#6da7ec","#5598e7","#3987e5","#2a78d6",
+              "#256abf","#1c5cab","#184f95","#104281","#0d366b"];
+const NODATA = "#a0aec0";
+// Carly's scale is ordinal text; same blue ramp (dark = better), red = "no".
+const RANK_COLORS = { "great": "#0d366b", "good-great": "#184f95",
+                      "good": "#256abf", "good-okay": "#3987e5",
+                      "okay": "#86b6ef", "no": "#e34948", "expired": NODATA };
+const RANK_ORDER = ["great", "good-great", "good", "good-okay", "okay", "no"];
+const UNRANKED = "#cbd5e0";
+
+const ppsfVals = markers.map(m => m.ppsf).filter(v => v != null);
+const ppsfMin = Math.min(...ppsfVals), ppsfMax = Math.max(...ppsfVals);
+
+const lerpHex = (a, b, t) => {
+  const h = x => [1, 3, 5].map(i => parseInt(x.slice(i, i + 2), 16));
+  const [r1, g1, b1] = h(a), [r2, g2, b2] = h(b);
+  return "#" + [r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t]
+    .map(v => Math.round(v).toString(16).padStart(2, "0")).join("");
+};
+function rampColor(t) {  // t in 0..1 → piecewise-linear along RAMP
+  t = Math.max(0, Math.min(1, t)) * (RAMP.length - 1);
+  const i = Math.min(Math.floor(t), RAMP.length - 2);
+  return lerpHex(RAMP[i], RAMP[i + 1], t - i);
+}
+function dotColor(m, mode) {
+  if (mode === "ppsf")
+    return m.ppsf == null ? NODATA
+      : rampColor((ppsfMax - m.ppsf) / (ppsfMax - ppsfMin || 1));
+  if (mode === "rank")
+    return RANK_COLORS[m.rank.trim().toLowerCase()] ?? UNRANKED;
+  return m.color;  // status
+}
 
 function popupHtml(m) {
   const bits = [];
   if (m.price) bits.push(`<span class="price">$${esc(m.price)}</span>`);
   const bb = [m.beds && `${esc(m.beds)} bd`, m.baths && `${esc(m.baths)} ba`,
-              m.sqft && `${esc(m.sqft)} sq ft`].filter(Boolean).join(" · ");
+              m.sqft && `${esc(m.sqft)} sq ft`,
+              m.ppsf != null && `$${m.ppsf.toFixed(2)}/sq ft`]
+             .filter(Boolean).join(" · ");
   if (bb) bits.push(bb);
   let h = `<div class="popup">` + bits.join(" &nbsp; ") + `<br>` +
     `<a class="name" href="${esc(m.link)}" target="_blank">${esc(m.name) || "listing"}</a><br>`;
@@ -62,41 +207,128 @@ function popupHtml(m) {
   return h + `</div>`;
 }
 
-// One toggleable layer group per status.
+// One toggleable layer group per status; dots kept for recoloring by mode.
 const byStatus = {};
+const dots = [];
+// localStorage throws in sandboxed/private contexts — persistence is optional.
+const store = { get() { try { return localStorage.getItem("aptColorMode"); } catch { return null; } },
+                set(v) { try { localStorage.setItem("aptColorMode", v); } catch {} } };
+let colorMode = store.get() || "status";
+if (!["status", "ppsf", "rank"].includes(colorMode)) colorMode = "status";
 for (const m of markers) {
+  const c = dotColor(m, colorMode);
   const mk = L.circleMarker([m.lat, m.lon], {
-    radius: 9, color: m.color, weight: 2.5,
-    fillColor: m.color, fillOpacity: m.approx ? 0.15 : 0.85,
+    radius: 9, color: c, weight: 2.5,
+    fillColor: c, fillOpacity: m.approx ? 0.15 : 0.85,
     dashArray: m.approx ? "3 3" : null,
   }).bindPopup(popupHtml(m), { maxWidth: 280 })
     .bindTooltip(`$${m.price || "?"}`, { direction: "top", offset: [0, -8] });
+  dots.push([m, mk]);
   (byStatus[m.status] ??= { group: L.layerGroup().addTo(map), color: m.color, n: 0 });
   byStatus[m.status].group.addLayer(mk);
   byStatus[m.status].n++;
 }
 
-const all = markers.map(m => [m.lat, m.lon]);
-if (all.length) map.fitBounds(all, { padding: [40, 40] }); else map.setView([42.39, -71.12], 12);
+// Fit everything: apartments plus the full extent of the search zones.
+const bounds = L.latLngBounds(markers.map(m => [m.lat, m.lon]));
+for (const a of anchors) {
+  const dlat = a.miles / 69, dlon = a.miles / (69 * Math.cos(a.lat * Math.PI / 180));
+  bounds.extend([a.lat - dlat, a.lon - dlon]);
+  bounds.extend([a.lat + dlat, a.lon + dlon]);
+}
+const fitAll = () => { map.invalidateSize(); map.fitBounds(bounds, { padding: [30, 30] }); };
+fitAll();
+// A container that hasn't been laid out yet has zero size, which clamps the
+// fit to max zoom (seen in embedded webviews) — refit once it really has one.
+if (!map.getSize().y) {
+  const ro = new ResizeObserver(() => {
+    map.invalidateSize();
+    if (map.getSize().y) { ro.disconnect(); fitAll(); }
+  });
+  ro.observe(document.getElementById("map"));
+}
 
-// Legend: status toggles + notes.
+// Legend: status toggles, color-by picker + key, notes.
+function keyHtml(mode) {
+  if (mode === "ppsf") {
+    if (!ppsfVals.length) return `<span class="muted">no sq ft data yet</span>`;
+    return `<div class="scalebar" style="background:linear-gradient(90deg,${[...RAMP].reverse().join(",")})"></div>` +
+      `<div class="scalelabels"><span>$${ppsfMin.toFixed(2)}</span>` +
+      `<span>$ / sq ft</span><span>$${ppsfMax.toFixed(2)}</span></div>` +
+      `<span class="dot" style="background:${NODATA}"></span>` +
+      `<span class="muted">no sq ft known</span>`;
+  }
+  if (mode === "rank") {
+    const counts = {};
+    for (const m of markers) {
+      const r = m.rank.trim().toLowerCase();
+      counts[r] = (counts[r] || 0) + 1;
+    }
+    let h = "";
+    for (const r of [...RANK_ORDER, "expired"])
+      if (counts[r]) h += `<span class="dot" style="background:${RANK_COLORS[r]}"></span>` +
+                          `${esc(r)} (${counts[r]})<br>`;
+    const unranked = markers.length -
+      Object.entries(counts).reduce((s, [r, n]) => s + (RANK_COLORS[r] ? n : 0), 0);
+    if (unranked) h += `<span class="dot" style="background:${UNRANKED}"></span>` +
+                       `<span class="muted">not ranked yet (${unranked})</span><br>`;
+    return h;
+  }
+  return "";  // status: the filter swatches above are the key
+}
+
+function applyMode(mode, div) {
+  colorMode = mode;
+  store.set(mode);
+  for (const [m, mk] of dots) {
+    const c = dotColor(m, mode);
+    mk.setStyle({ color: c, fillColor: c });
+  }
+  div.querySelector("#scalekey").innerHTML = keyHtml(mode);
+  // In a non-status mode the dots no longer wear status colors — mute the
+  // filter swatches so the only colored key on screen is the active scale.
+  for (const el of div.querySelectorAll(".statusdot"))
+    el.style.background = mode === "status" ? el.dataset.c : "#cbd5e0";
+}
+
+const MODE_LABELS = { status: "status", ppsf: "$ / sq ft", rank: "Carly rank" };
 const legend = L.control({ position: "topright" });
 legend.onAdd = () => {
   const div = L.DomUtil.create("div", "legend");
   let h = "";
+  for (const [area, z] of Object.entries(zones))
+    h += `<label><input type="checkbox" checked data-zone="${esc(area)}">` +
+         `<span class="dot sq" style="background:${z.color}"></span>${esc(area)}</label>`;
+  h += `<label><input type="checkbox" checked data-noise="1">` +
+       `<span class="dot sq" style="background:#FF3399"></span>traffic + flight noise</label>` +
+       `<div class="noisescale">` +
+       NOISE_SCALE.map(([db, c]) =>
+         `<span title="${db} dB"><i style="background:${c}"></i>${db}</span>`).join("") +
+       `<span class="muted">dB</span></div>`;
+  h += `<hr>`;
   for (const [status, s] of Object.entries(byStatus))
     h += `<label><input type="checkbox" checked data-status="${esc(status)}">` +
-         `<span class="dot" style="background:${s.color}"></span>${esc(status)} (${s.n})</label>`;
+         `<span class="dot statusdot" data-c="${s.color}" style="background:${s.color}"></span>` +
+         `${esc(status)} (${s.n})</label>`;
+  h += `<hr><span class="muted" style="font-size:12px">color dots by</span><br>`;
+  for (const [mode, label] of Object.entries(MODE_LABELS))
+    h += `<label><input type="radio" name="colormode" value="${mode}"` +
+         `${mode === colorMode ? " checked" : ""}> ${label}</label>`;
+  h += `<div id="scalekey"></div>`;
   h += `<span class="dot hollow" style="border-color:#666"></span>` +
        `<span class="muted" style="color:#666">hollow = approximate spot</span><br>` +
        `<a href="https://docs.google.com/spreadsheets/d/1tSarkMFIYAaXFP6Y3X-rpmb5NHumXJU_KsFfDtR3PYk/edit" target="_blank">open the sheet ↗</a><br>` +
-       `<span style="color:#999;font-size:11px">updated Aug 13, 12:33 AM</span>`;
+       `<span style="color:#999;font-size:11px">updated Aug 13, 1:43 AM</span>`;
   div.innerHTML = h;
   div.addEventListener("change", e => {
-    const s = byStatus[e.target.dataset.status];
+    if (e.target.name === "colormode") return applyMode(e.target.value, div);
+    if (e.target.dataset.noise)
+      return e.target.checked ? noiseLayer.addTo(map) : noiseLayer.remove();
+    const s = byStatus[e.target.dataset.status] ?? zones[e.target.dataset.zone];
     if (s) e.target.checked ? s.group.addTo(map) : s.group.remove();
   });
   L.DomEvent.disableClickPropagation(div);
+  applyMode(colorMode, div);
   return div;
 };
 legend.addTo(map);
